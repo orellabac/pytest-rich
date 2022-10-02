@@ -120,8 +120,9 @@ class RichTerminalReporter:
                 description=f"[cyan][bold]Collected [green]{self.total_items_collected} [cyan]items",
                 completed=True,
             )
-            self.collect_progress.stop()
-            self.collect_progress = None
+        self.collect_progress.stop()
+        self.collect_progress = None
+        # self.collect_task = None
 
     def pytest_sessionstart(self, session: pytest.Session) -> None:
         py_version = f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
@@ -235,10 +236,10 @@ class RichTerminalReporter:
         self.total_items_completed += 1
         percent = (self.total_items_completed * 100) // self.total_items_collected
         if self.runtest_progress is not None:
-            self.runtest_progress.update(
-                self.overall_progress_task,
-                description=f"Percent: [green]{percent}%[/green]",
-            )
+        self.runtest_progress.update(
+            self.overall_progress_task,
+            description=f"Percent: [green]{percent}%[/green]",
+        )
 
     def pytest_sessionfinish(
         self, session: pytest.Session, exitstatus: Union[int, pytest.ExitCode]
@@ -320,9 +321,11 @@ class RichExceptionChainRepr:
             yield stack_renderable
 
         path_highlighter = PathHighlighter()
+        loop = 0
         for entry in self.chain.reprtraceback.reprentries:
-            assert isinstance(entry, ReprEntry)
-            assert isinstance(entry.reprfileloc, ReprFileLocation)
+            loop = loop + 1
+            if loop > 1:
+                break
             if entry.reprfileloc.message:
                 yield Text.assemble(
                     path_highlighter(
@@ -392,17 +395,17 @@ class RichExceptionChainRepr:
 
         def get_args(reprfuncargs: ReprFuncArgs) -> Text:
             args = Text("")
-            for arg in reprfuncargs.args:
-                assert isinstance(arg[1], str)
-                args.append(
-                    Text.assemble(
-                        (arg[0], "name.variable"),
-                        (" = ", "repr.equals"),
-                        (arg[1], "token"),
+            if reprfuncargs and reprfuncargs.args:
+                for arg in reprfuncargs.args:
+                    args.append(
+                        Text.assemble(
+                            (arg[0], "name.variable"),
+                            (" = ", "repr.equals"),
+                            (arg[1], "token"),
+                        )
                     )
-                )
-                if reprfuncargs.args[-1] != arg:
-                    args.append(Text(", "))
+                    if reprfuncargs.args[-1] != arg:
+                        args.append(Text(", "))
             return args
 
         def get_error_source(lines: Sequence[str]) -> str:
@@ -417,10 +420,11 @@ class RichExceptionChainRepr:
                 if line.startswith("E"):
                     err_lines.append(line[1:].strip())
             return err_lines
-
+        loop = 0
         for last, entry in loop_last(chain.reprtraceback.reprentries):
-            assert isinstance(entry, ReprEntry)
-            assert entry.reprfileloc is not None
+            loop = loop + 1
+            if loop > 1:
+                break
             filename = entry.reprfileloc.path
             lineno = entry.reprfileloc.lineno
             funcname = get_funcname(lineno, filename)
@@ -436,7 +440,6 @@ class RichExceptionChainRepr:
             )
             yield text
 
-            assert entry.reprfuncargs is not None
             args = get_args(entry.reprfuncargs)
             if args:
                 yield args
