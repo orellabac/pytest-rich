@@ -236,10 +236,10 @@ class RichTerminalReporter:
         self.total_items_completed += 1
         percent = (self.total_items_completed * 100) // self.total_items_collected
         if self.runtest_progress is not None:
-        self.runtest_progress.update(
-            self.overall_progress_task,
-            description=f"Percent: [green]{percent}%[/green]",
-        )
+            self.runtest_progress.update(
+                self.overall_progress_task,
+                description=f"Percent: [green]{percent}%[/green]",
+            )
 
     def pytest_sessionfinish(
         self, session: pytest.Session, exitstatus: Union[int, pytest.ExitCode]
