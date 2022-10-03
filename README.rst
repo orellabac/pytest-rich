@@ -2,6 +2,14 @@
 pytest-rich
 ===========
 
+To build:
+```
+pip install build
+python -m build --wheel
+```
+
+
+
 Leverage `rich`_ for richer test session output.
 
 .. image:: https://img.shields.io/pypi/v/pytest-rich.svg
