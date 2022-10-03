@@ -414,7 +414,7 @@ class RichExceptionChainRepr:
                     return line.split(">")[1].strip()
             return ""
 
-        def get_err_msgs(lines: Sequence[str]) -> list[str]:
+        def get_err_msgs(lines):
             err_lines = []
             for line in lines:
                 if line.startswith("E"):
